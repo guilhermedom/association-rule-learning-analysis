@@ -11,7 +11,8 @@ ui = fluidPage(
     theme = shinytheme("united"),
     
     # Application title
-    titlePanel(h1(align = "center", "Association Rule Learning - Visual Analysis")),
+    titlePanel(h1(align = "center", "Association Rule Learning - Visual Analysis"),
+               windowTitle = "Association Rule Learning - Visual Analysis"),
     
     br(),
     br(),
