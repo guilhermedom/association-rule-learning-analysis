@@ -18,12 +18,35 @@ ui = fluidPage(
     br(),
     
     fluidRow(
-        column(3, align = "center", fileInput("fileInputID", "Choose a file to mine association rules:",
-                                              accept = c("text/csv", "text/comma-separated-values", "text/plain", ".csv")),
-               actionButton("generateButtonID", "Generate!")),
-        column(3, align = "center", numericInput("supportInputID", "Minimum Support for Rules:", 0.04, min = 0.001, max = 1.0, step = 0.001)),
-        column(3, align = "center", numericInput("confidenceInputID", "Minimum Confidence for Rules:", 0.08, min = 0.001, max = 1.0, step = 0.001)),
-        column(3, align = "center", numericInput("lengthInputID", "Minimum Length for Rules:", 2, min = 1, max = 40))
+        column(3, align = "center",
+               fileInput("fileInputID",
+                         "Choose a file to mine association rules:",
+                         accept = c("text/csv",
+                                    "text/comma-separated-values",
+                                    "text/plain",
+                                    ".csv")),
+               actionButton("generateButtonID", "Generate!")
+        ),
+        column(3, align = "center",
+               numericInput("supportInputID",
+                            "Minimum Support for Rules:",
+                            value = 0.04,
+                            min = 0.001,
+                            max = 1.0,
+                            step = 0.001)
+        ),
+        column(3, align = "center",
+               numericInput("confidenceInputID",
+                            "Minimum Confidence for Rules:",
+                            value = 0.08,
+                            min = 0.001,
+                            max = 1.0,
+                            step = 0.001)
+        ),
+        column(3, align = "center",
+               numericInput("lengthInputID", "Minimum Length for Rules:",
+                            value = 2, min = 1, max = 40)
+        )
     ),
     
     hr(),
@@ -41,7 +64,8 @@ ui = fluidPage(
     
     fluidRow(
         column(5, h1(textOutput("textRules")),
-               tableOutput("tableRules")),
+               tableOutput("tableRules")
+        ),
         column(7, plotOutput("groupPlotID", height = "700px"))
     )
     
@@ -52,9 +76,13 @@ server = function(input, output) {
     observeEvent(input$generateButtonID, {
         validate(need(input$fileInputID, "A file must be selected."))
         
-        transactions = read.transactions(input$fileInputID$datapath, format = "basket", sep = ",")
-        rules = apriori(transactions, parameter = list(supp = input$supportInputID,
-                                                       conf = input$confidenceInputID, minlen = input$lengthInputID))
+        transactions = read.transactions(input$fileInputID$datapath,
+                                         format = "basket", sep = ",")
+        rules = apriori(transactions,
+                        parameter = list(supp = input$supportInputID,
+                                         conf = input$confidenceInputID,
+                                         minlen = input$lengthInputID))
+        
         output$graphPlotID = renderPlot({
             plot(rules, method = "graph")
         })
@@ -68,8 +96,12 @@ server = function(input, output) {
             plot(rules, method = "grouped") + plotTheme
         })
         
-        output$textRules = renderText({"Rules Learned"})
-        output$tableRules = renderTable({inspect(rules)})
+        output$textRules = renderText({
+            "Rules Learned"
+        })
+        output$tableRules = renderTable({
+            inspect(rules)
+        })
     })
 }
 
