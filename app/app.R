@@ -4,13 +4,15 @@ library(arules)
 library(arulesViz)
 library(ggplot2)
 
+# Define a theme with increased font size to be used across different plots.
 plotTheme = theme(text = element_text(size = 17))
 
-# Define UI for application
+# Define UI for application.
 ui = fluidPage(
+    # Set theme for UI.
     theme = shinytheme("united"),
     
-    # Application title
+    # Application title.
     titlePanel(h1(align = "center", "Association Rule Learning - Visual Analysis"),
                windowTitle = "Association Rule Learning - Visual Analysis"),
     
@@ -18,6 +20,7 @@ ui = fluidPage(
     br(),
     
     fluidRow(
+        # Input file browsing.
         column(3, align = "center",
                fileInput("fileInputID",
                          "Choose a file to mine association rules:",
@@ -27,6 +30,9 @@ ui = fluidPage(
                                     ".csv")),
                actionButton("generateButtonID", "Generate!")
         ),
+        
+        # Hint and step values are set like this because it fits better the
+        # example file. Anyway, these values are also reasonable for other data.
         column(3, align = "center",
                numericInput("supportInputID",
                             "Minimum Support for Rules:",
@@ -66,18 +72,27 @@ ui = fluidPage(
         column(5, h1(textOutput("textRules")),
                tableOutput("tableRules")
         ),
+        
+        # Plot is more readable with this fixed height.
         column(7, plotOutput("groupPlotID", height = "700px"))
     )
     
 )
 
-# Define server logic
+# Define server logic.
 server = function(input, output) {
+    # All back end processing is done once the "Generate!" button is pressed.
     observeEvent(input$generateButtonID, {
-        validate(need(input$fileInputID, "A file must be selected."))
+        # Necessary check to avoid crashes if no input file is given.
+        validate(
+            need(input$fileInputID, "A file must be selected.")
+        )
         
         transactions = read.transactions(input$fileInputID$datapath,
                                          format = "basket", sep = ",")
+        
+        # Takes transactions from the input file and mine association rules
+        # using the "apriori" algorithm and the user-set parameters.
         rules = apriori(transactions,
                         parameter = list(supp = input$supportInputID,
                                          conf = input$confidenceInputID,
@@ -96,6 +111,7 @@ server = function(input, output) {
             plot(rules, method = "grouped") + plotTheme
         })
         
+        # Association rules learned are given to the user as a reference.
         output$textRules = renderText({
             "Rules Learned"
         })
@@ -105,5 +121,5 @@ server = function(input, output) {
     })
 }
 
-# Run the application 
+# Run the application.
 shinyApp(ui = ui, server = server)
